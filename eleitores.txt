@@ -95,7 +95,7 @@ Julia	37324	F	S
 Biel	37421	A	S
 Daniel	37429	I	S
 Luisa	37796	F	N
-Ivo	38076	A	S
+Ivo	    38076	A	S
 Iago	38490	A	N
 Bianca	38697	N	N
 Ivana	38768	V	S

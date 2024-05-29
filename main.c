@@ -7,7 +7,7 @@ int carregarCandidatosVereador(Vereador *candidatos, const char *filename) {
 	char *caractere_nao_convertido;
 	
 	char linha[118];
-	char nome[20];
+	char nome[50];
 	char titulo[4];
 	char partido[3];
 	char sigla[6];
@@ -20,7 +20,7 @@ int carregarCandidatosVereador(Vereador *candidatos, const char *filename) {
     int count = 0;
     while(fgets(linha, sizeof(linha), file)){
     	//printf("\nsaiu do arquivo .txt      : %s",linha);// importante para debug
-        sscanf(linha, "%s %s %s %s\n", nome, titulo,partido,sigla); 
+        sscanf(linha, "%s %s %s %s\n", nome, titulo, partido, sigla); 
         //printf("%s,%s,%s,%s\n",nome,titulo,partido,sigla) ;
         
         unico.numero = strtol(titulo, &caractere_nao_convertido, 10);
@@ -32,7 +32,7 @@ int carregarCandidatosVereador(Vereador *candidatos, const char *filename) {
 		//printf("reg %s,%d,%s,%s\n",candidatos[count].nome,candidatos[count].numero,candidatos[count].numero_partido,candidatos[count].sigla_partido) ;
 		   
      	//if (count==3) break;		        	
-         count++; 
+        count++; 
 	}
 	
 //    while (fscanf(file, "%s,%d,%d,%9s\n", 
@@ -57,7 +57,7 @@ int carregarCandidatosPrefeito(Prefeito *candidatos, const char *filename) {
 	char *caractere_nao_convertido;
 	
 	char linha[118];
-	char nome[20];
+	char nome[50];
 	char titulo[4];
 	char partido[3];
 	char sigla[6];
@@ -102,32 +102,33 @@ int carregarEleitores(Eleitor *eleitores, const char *filename) {
 	char *caractere_nao_convertido;
 	
 	char linha[118];
-	char nome[20];
-	char titulo[4];
+	char nome[50];
+	char titulo[6];
 	char partido[3];
-	char sigla_comp[2];
-	char sigla_defi[2];
+	char compareceu[2];
+    char deficiencia[2];
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Erro ao abrir arquivo de candidatos a vereador");
+        perror("Erro ao abrir arquivo de candidatos a prefeito");
         return -1;
     }
-
-    int count = 0;
-    while(fgets(linha, sizeof(linha), file)){
-    	printf("\nsaiu do arquivo .txt      : %s",linha);// importante para debug
-        sscanf(linha, "%s %s %s %s\n", nome, titulo,sigla_comp,sigla_defi); 
-        printf("%s,%s,%s,%s\n",nome,titulo,sigla_comp,sigla_defi) ;
+	
+	int count = 0;
+	while(fgets(linha, sizeof(linha), file)){
+    	//printf("\nsaiu do arquivo .txt      : %s",linha);// importante para debug
+        sscanf(linha, "%s %s %s %s\n", nome, titulo,compareceu, deficiencia); 
+        //printf("%s,%s,%s,%s\n",nome,titulo,compareceu, deficiencia);
         
-        unico.titulo = strtol(titulo, &caractere_nao_convertido, 10);
+        unico.tituloDeEleitor = strtol(titulo, &caractere_nao_convertido, 10);
+//        unico.numero_partido = strtol(partido, &caractere_nao_convertido,10);
         snprintf(unico.nome, sizeof(unico.nome), "%s", nome);  
-		snprintf(unico.compareceu, sizeof(unico.compareceu), "%s", sigla_comp); 
-		snprintf(unico.deficiencia, sizeof(unico.deficiencia), "%s", sigla_defi);
+		snprintf(unico.compareceu, sizeof(unico.compareceu), "%s", compareceu); 
+        snprintf(unico.deficiencia, sizeof(unico.deficiencia), "%s", deficiencia);
 		
 		eleitores[count] = unico;
-		printf("reg %s,%d,%s,%s\n",eleitores[count].nome,eleitores[count].titulo,eleitores[count].deficiencia,eleitores[count].compareceu);
+		//printf("reg %s,%d,%s,%s\n",eleitores[count].nome,eleitores[count].tituloDeEleitor,eleitores[count].compareceu, eleitores[count].deficiencia);
 		   
-     	if (count==3) break;		        	
+     	//if (count == 4) break;		        	
          count++; 
 	}
 
@@ -155,7 +156,7 @@ void votar(Eleitor *eleitores, int numEleitores, Vereador *vereadores, int numVe
 //printf("teste2");
     for (i = 0; i < numEleitores; i++) {
         if (eleitores[i].compareceu == 'N') {
-            printf("Eleitor %s (%d) votando...\n", eleitores[i].nome, eleitores[i].titulo);
+            printf("Eleitor %s (%d) votando...\n", eleitores[i].nome, eleitores[i].tituloDeEleitor);
             int votoVereador, votoPrefeito;
             printf("Digite o Número do candidato a vereador ou 0 para voto branco: ");
             scanf("%d", &votoVereador);
@@ -167,14 +168,14 @@ void votar(Eleitor *eleitores, int numEleitores, Vereador *vereadores, int numVe
             voto.voto_prefeito = votoPrefeito;
 
             fwrite(&voto, sizeof(Voto), 1, votosFile);
-            eleitores[i].compareceu = 'S';
+            eleitores[i].compareceu[i] = 'S';
         }
     }
 
     fclose(votosFile);
 }
 
-int apurar() {
+void apurar() {
     int i;
     FILE *votosFile = fopen("votos.bin", "rb");
     if (!votosFile) {
@@ -186,7 +187,7 @@ int apurar() {
     int totalVotosVereador[1000] = {0};
     int totalVotosPrefeito[100] = {0};
 
-    while (fread(&voto, sizeof(Voto), 1, votosFile) == 1) {
+    while (fread(&voto, sizeof(voto), 1, votosFile) == 1) {
         if (voto.voto_vereador >= 0 && voto.voto_vereador < 1000) {
             totalVotosVereador[voto.voto_vereador]++;
         }
@@ -226,37 +227,41 @@ int main() {
     Vereador vereadores[MAX_CANDIDATOS_VEREADOR];
     Prefeito prefeitos[MAX_CANDIDATOS_PREFEITO];
     Eleitor eleitores[MAX_ELEITORES];
-    int numVereadores = -1;
-    int numPrefeitos = -1;
+    int numVereadores = 0;
+    int numPrefeitos = 0;
     int numEleitores = -1;
 
 
-    // numVereadores = carregarCandidatosVereador(vereadores, "vereadores.txt");
-    // printf("numVereadores %d\n",numVereadores);
-    // if (numVereadores < MIN_CANDIDATOS_VEREADOR || numVereadores > MAX_CANDIDATOS_VEREADOR) {
-    //     fprintf(stderr, "Número de candidatos a vereador fora do intervalo permitido\n");
-    //    printf("teste4");getchar();
-    //     return 1;
-    // }
+    numVereadores = carregarCandidatosVereador(vereadores, "vereadores.txt");
+    printf("numVereadores %d\n",numVereadores);
+    if (numVereadores < MIN_CANDIDATOS_VEREADOR || numVereadores > MAX_CANDIDATOS_VEREADOR) {
+        fprintf(stderr, "Número de candidatos a vereador fora do intervalo permitido\n");
+       //printf("teste4");getchar();
+        return 1;
+    }
 
-    // numPrefeitos = carregarCandidatosPrefeito(prefeitos, "prefeitos.txt");
-    // printf("numPrefeitos %d\n",numPrefeitos);
-    // if (numPrefeitos < MIN_CANDIDATOS_PREFEITO || numPrefeitos > MAX_CANDIDATOS_PREFEITO) {
-    //     fprintf(stderr, "Número de candidatos a prefeito fora do intervalo permitido\n");
-    //   printf("teste5");getchar();
-    //     return 1;
-    // }
+    numPrefeitos = carregarCandidatosPrefeito(prefeitos, "prefeitos.txt");
+    printf("numPrefeitos %d\n",numPrefeitos);
+    if (numPrefeitos < MIN_CANDIDATOS_PREFEITO || numPrefeitos > MAX_CANDIDATOS_PREFEITO) {
+        fprintf(stderr, "Número de candidatos a prefeito fora do intervalo permitido\n");
+      //printf("teste5");getchar();
+        return 1;
+    }
+
+    //printf("teste20");
+
     numEleitores = carregarEleitores(eleitores, "eleitores.txt");
     printf("numEleitores %d\n",numEleitores);
     if (numEleitores < MIN_ELEITORES || numEleitores > MAX_ELEITORES) {
         fprintf(stderr, "Número de eleitores fora do intervalo permitido\n");
-   printf("teste6");getchar();
+        //printf("teste6");getchar();
+        
         return 1;
     }
-    
-    printf("teste3");getchar();
+    //printf("teste21");
+    //printf("teste3");getchar();
     votar(eleitores, numEleitores, vereadores, numVereadores, prefeitos, numPrefeitos);
-    printf("%d",apurar());
+    //printf("%d",apurar());
 	apurar();
 
     return 0;

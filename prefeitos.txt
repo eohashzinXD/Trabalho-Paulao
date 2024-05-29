@@ -1,4 +1,4 @@
-Ana	18	PCdoB
+Ana	    18	PCdoB
 João	11	PSOL
 Maria	82	PMN
 Pedro	27	PRTB

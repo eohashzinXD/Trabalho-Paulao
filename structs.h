@@ -25,9 +25,9 @@ typedef struct {
 
 typedef struct {
     char nome[MAX_NAME_LEN];
-    int titulo;
-    char deficiencia;
-    char compareceu;
+    long int tituloDeEleitor;
+    char deficiencia[1];
+    char compareceu[1];
 } Eleitor;
 
 typedef struct {
